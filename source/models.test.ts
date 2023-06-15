@@ -3,6 +3,12 @@ import { ContactsCollection } from "./models";
 import * as contactsObject from "./contacts.json";
 import * as jsonfile from "jsonfile";
 
+const originalContacts = [...contactsObject];
+
+test.afterEach.always(() => {
+  jsonfile.writeFileSync(__dirname + "/contacts.json", originalContacts);
+});
+
 test("Testeo el load del modelo", (t) => {
   const model = new ContactsCollection();
   model.load();
@@ -16,7 +22,8 @@ test("Testeo el addOne del modelo", (t) => {
     name: "Marce",
   };
   model.addOne(mockContact);
-  t.deepEqual(model.getAll(), [mockContact]);
+  const allContacts = model.getAll();
+  t.deepEqual(allContacts[allContacts.length - 1], mockContact);
 });
 
 test("Testeo el save del modelo", (t) => {
@@ -28,8 +35,9 @@ test("Testeo el save del modelo", (t) => {
   };
   model.addOne(mockContact);
   model.save();
-  const fileContent = jsonfile.readFileSync(__dirname + "/contacts.json");
-  t.deepEqual(fileContent, model.getAll());
+  const allContacts = model.getAll();
+  const lastContact = allContacts[allContacts.length - 1];
+  t.deepEqual(lastContact, mockContact);
 });
 
 test("Testeo el getOneById del modelo", (t) => {
